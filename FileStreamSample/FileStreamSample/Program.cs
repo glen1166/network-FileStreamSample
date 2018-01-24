@@ -8,45 +8,58 @@ namespace FileStreamSample
     {
         static void Main(string[] args)
         {
-            string path = @"e:\temp\test.txt";
+            int count;
+            byte[] byteArray;
+            char[] charArray;
+            UnicodeEncoding uniEncoding = new UnicodeEncoding();
 
-            // Delete the file if it exists.
-            if (File.Exists(path))
+            // Create the data to write to the stream.
+            byte[] firstString = uniEncoding.GetBytes(
+                "Invalid file path characters are: ");
+            byte[] secondString = uniEncoding.GetBytes(
+                Path.GetInvalidPathChars());
+
+            using (MemoryStream memStream = new MemoryStream(100))
             {
-                File.Delete(path);
-            }
+                // Write the first string to the stream.
+                memStream.Write(firstString, 0, firstString.Length);
 
-            //Create the file.
-            using (FileStream fs = File.Create(path))
-            {
-                AddText(fs, "This is some text");
-                AddText(fs, "This is some more text,");
-                AddText(fs, "\r\nand this is on a new line");
-                AddText(fs, "\r\n\r\nThe following is a subset of characters:\r\n");
-
-                for (int i = 1; i < 120; i++)
+                // Write the second string to the stream, byte by byte.
+                count = 0;
+                while (count < secondString.Length)
                 {
-                    AddText(fs, Convert.ToChar(i).ToString());
-
+                    memStream.WriteByte(secondString[count++]);
                 }
-            }
 
-            //Open the stream and read it back.
-            using (FileStream fs = File.OpenRead(path))
-            {
-                byte[] b = new byte[1024];
-                UTF8Encoding temp = new UTF8Encoding(true);
-                while (fs.Read(b, 0, b.Length) > 0)
+                // Write the stream properties to the console.
+                Console.WriteLine(
+                    "Capacity = {0}, Length = {1}, Position = {2}\n",
+                    memStream.Capacity.ToString(),
+                    memStream.Length.ToString(),
+                    memStream.Position.ToString());
+
+                // Set the position to the beginning of the stream.
+                memStream.Seek(0, SeekOrigin.Begin);
+
+                // Read the first 20 bytes from the stream.
+                byteArray = new byte[memStream.Length];
+                count = memStream.Read(byteArray, 0, 20);
+
+                // Read the remaining bytes, byte by byte.
+                while (count < memStream.Length)
                 {
-                    Console.WriteLine(temp.GetString(b));
+                    byteArray[count++] =
+                        Convert.ToByte(memStream.ReadByte());
                 }
-            }
-        }
 
-        private static void AddText(FileStream fs, string value)
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(value);
-            fs.Write(info, 0, info.Length);
+                // Decode the byte array into a char array
+                // and write it to the console.
+                charArray = new char[uniEncoding.GetCharCount(
+                    byteArray, 0, count)];
+                uniEncoding.GetDecoder().GetChars(
+                    byteArray, 0, count, charArray, 0);
+                Console.WriteLine(charArray);
+            }
         }
     }
 }
