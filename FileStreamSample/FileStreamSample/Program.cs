@@ -8,30 +8,21 @@ namespace FileStreamSample
     {
         static void Main(string[] args)
         {
-            ReadText();
+            ReadCharacters();
         }
 
-        async static void ReadText()
+        static async void ReadCharacters()
         {
-            string filename = @"E:\temp\test.txt";
-            char[] result;
-            StringBuilder builder = new StringBuilder();
+            StringBuilder stringToRead = new StringBuilder();
+            stringToRead.AppendLine("Characters in 1st line to read");
+            stringToRead.AppendLine("and 2nd line");
+            stringToRead.AppendLine("and the end");
 
-            using (StreamReader reader = File.OpenText(filename))
+            using (StringReader reader = new StringReader(stringToRead.ToString()))
             {
-                result = new char[reader.BaseStream.Length];
-                await reader.ReadAsync(result, 0, (int)reader.BaseStream.Length);
+                string readText = await reader.ReadToEndAsync();
+                Console.WriteLine(readText);
             }
-
-            foreach (char c in result)
-            {
-                if (char.IsLetterOrDigit(c) || char.IsWhiteSpace(c))
-                {
-                    builder.Append(c);
-                }
-            }
-
-            Console.WriteLine(builder.ToString());
         }
     }
 }
