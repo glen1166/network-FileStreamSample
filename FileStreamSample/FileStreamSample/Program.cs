@@ -6,46 +6,31 @@ namespace FileStreamSample
 {
     class Program
     {
-        const string fileName = @"E:\Backup\northwind.bak";
+        const string fileName = @"E:\temp\test.txt";
+        const string desFileName = @"E:\temp\test-des.txt";
 
         static void Main(string[] args)
         {
-            WriteDefaultValues();
-            DisplayValues();
-        }
+            // Get the directories currently on the C drive.
+            DirectoryInfo[] cDirs = new DirectoryInfo(@"c:\").GetDirectories();
 
-        public static void WriteDefaultValues()
-        {
-            using (BinaryWriter writer = new BinaryWriter(File.Open(fileName, FileMode.Create)))
+            // Write each directory name to a file.
+            using (StreamWriter sw = new StreamWriter(fileName))
             {
-                writer.Write(1.250F);
-                writer.Write(@"c:\Temp");
-                writer.Write(10);
-                writer.Write(true);
-            }
-        }
-
-        public static void DisplayValues()
-        {
-            float aspectRatio;
-            string tempDirectory;
-            int autoSaveTime;
-            bool showStatusBar;
-
-            if (File.Exists(fileName))
-            {
-                using (BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open)))
+                foreach (DirectoryInfo dir in cDirs)
                 {
-                    aspectRatio = reader.ReadSingle();
-                    tempDirectory = reader.ReadString();
-                    autoSaveTime = reader.ReadInt32();
-                    showStatusBar = reader.ReadBoolean();
+                    sw.WriteLine(dir.Name);
                 }
+            }
 
-                Console.WriteLine("Aspect ratio set to: " + aspectRatio);
-                Console.WriteLine("Temp directory is: " + tempDirectory);
-                Console.WriteLine("Auto save time set to: " + autoSaveTime);
-                Console.WriteLine("Show status bar: " + showStatusBar);
+            // Read and show each line from the file.
+            string line = "";
+            using (StreamReader sr = new StreamReader(desFileName))
+            {
+                while ((line = sr.ReadLine()) != null)
+                {
+                    Console.WriteLine(line);  
+                }
             }
         }
     }
