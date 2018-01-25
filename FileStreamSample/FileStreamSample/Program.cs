@@ -6,22 +6,46 @@ namespace FileStreamSample
 {
     class Program
     {
+        const string fileName = @"E:\Backup\northwind.bak";
+
         static void Main(string[] args)
         {
-            ReadCharacters();
+            WriteDefaultValues();
+            DisplayValues();
         }
 
-        static async void ReadCharacters()
+        public static void WriteDefaultValues()
         {
-            StringBuilder stringToRead = new StringBuilder();
-            stringToRead.AppendLine("Characters in 1st line to read");
-            stringToRead.AppendLine("and 2nd line");
-            stringToRead.AppendLine("and the end");
-
-            using (StringReader reader = new StringReader(stringToRead.ToString()))
+            using (BinaryWriter writer = new BinaryWriter(File.Open(fileName, FileMode.Create)))
             {
-                string readText = await reader.ReadToEndAsync();
-                Console.WriteLine(readText);
+                writer.Write(1.250F);
+                writer.Write(@"c:\Temp");
+                writer.Write(10);
+                writer.Write(true);
+            }
+        }
+
+        public static void DisplayValues()
+        {
+            float aspectRatio;
+            string tempDirectory;
+            int autoSaveTime;
+            bool showStatusBar;
+
+            if (File.Exists(fileName))
+            {
+                using (BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open)))
+                {
+                    aspectRatio = reader.ReadSingle();
+                    tempDirectory = reader.ReadString();
+                    autoSaveTime = reader.ReadInt32();
+                    showStatusBar = reader.ReadBoolean();
+                }
+
+                Console.WriteLine("Aspect ratio set to: " + aspectRatio);
+                Console.WriteLine("Temp directory is: " + tempDirectory);
+                Console.WriteLine("Auto save time set to: " + autoSaveTime);
+                Console.WriteLine("Show status bar: " + showStatusBar);
             }
         }
     }
